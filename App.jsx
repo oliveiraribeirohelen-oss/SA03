@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "./components/Header";
+import StatusRede from "./components/StatusRede";
+import InstallPrompt from "./components/InstallPrompt";
 import TaskCard from "./components/TaskCard";
 import TaskForm from "./components/TaskForm";
 
@@ -46,13 +48,10 @@ function App() {
   const [tarefas, setTarefas] = useState(() => {
     const salvas = localStorage.getItem("moviebox-tarefas");
 
-    return salvas
-      ? JSON.parse(salvas)
-      : TAREFAS_INICIAIS;
+    return salvas ? JSON.parse(salvas) : TAREFAS_INICIAIS;
   });
 
   const [filtro, setFiltro] = useState("todas");
-
   const [anuncio, setAnuncio] = useState("");
 
   useEffect(() => {
@@ -86,25 +85,23 @@ function App() {
       return;
     }
 
-    const vaiConcluir = !tarefa.concluida;
-
-    const status = vaiConcluir
-      ? "concluída"
-      : "pendente";
+    const novaSituacao = !tarefa.concluida;
 
     setTarefas((atual) =>
       atual.map((t) =>
         t.id === id
           ? {
               ...t,
-              concluida: !t.concluida,
+              concluida: novaSituacao,
             }
           : t
       )
     );
 
     setAnuncio(
-      `Tarefa "${tarefa.titulo}" marcada como ${status}.`
+      `Tarefa "${tarefa.titulo}" marcada como ${
+        novaSituacao ? "concluída" : "pendente"
+      }.`
     );
   }
 
@@ -140,44 +137,53 @@ function App() {
 
   return (
     <div className="app">
-
-      <a href="#conteudo" className="skip-link">
+      <a
+        href="#conteudo"
+        className="skip-link"
+      >
         Pular para o conteúdo
       </a>
 
       <Header />
 
+      <StatusRede />
+
+      <InstallPrompt />
+
       <div
-        aria-live="polite"
-        role="status"
         className="sr-only"
+        role="status"
+        aria-live="polite"
       >
         {anuncio}
       </div>
 
-      <main id="conteudo" className="container">
-
+      <main
+        id="conteudo"
+        className="container"
+      >
         <section className="intro">
           <h2>Minha lista de filmes</h2>
 
           <p>
-            Organize os filmes que você quer assistir
-            e acompanhe suas tarefas.
+            Organize os filmes que você quer
+            assistir e acompanhe suas tarefas.
           </p>
         </section>
 
-        <TaskForm onAdicionar={adicionarTarefa} />
+        <TaskForm
+          onAdicionar={adicionarTarefa}
+        />
 
         <div className="lista-header">
-
           <h2>
             Minhas tarefas ({tarefas.length})
           </h2>
 
           <div
+            className="filtros"
             role="group"
             aria-label="Filtrar tarefas"
-            className="filtros"
           >
             {FILTROS.map((opcao) => (
               <button
@@ -198,7 +204,6 @@ function App() {
               </button>
             ))}
           </div>
-
         </div>
 
         <section
@@ -229,13 +234,11 @@ function App() {
             ))
           )}
         </section>
-
       </main>
 
       <footer className="footer">
         MovieBox — Projeto SA03
       </footer>
-
     </div>
   );
 }

@@ -1,18 +1,23 @@
 # MovieBox
 
-Sistema desenvolvido em React + Vite para organização de tarefas relacionadas a filmes.
+Projeto SA03 desenvolvido com React e Vite.
+
+## Descrição
+
+O MovieBox é um sistema para organizar tarefas relacionadas a filmes.
 
 ## Funcionalidades
 
 - Adicionar tarefas
-- Definir categoria
-- Definir prioridade
-- Marcar tarefa como concluída
+- Escolher categoria
+- Escolher prioridade
+- Marcar tarefas como concluídas
 - Remover tarefas
 - Filtrar tarefas
 - Relógio em tempo real
-- Salvar tarefas no navegador
+- Persistência das tarefas
 - Recursos de acessibilidade
+- Navegação pelo teclado
 
 ## Tecnologias
 
@@ -23,6 +28,10 @@ Sistema desenvolvido em React + Vite para organização de tarefas relacionadas 
 
 ## Como executar
 
+Instalar as dependências:
+
 npm install
+
+Executar o projeto:
 
 npm run dev
