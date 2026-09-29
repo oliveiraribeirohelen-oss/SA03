@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
+
 import Header from "./components/Header";
 import StatusRede from "./components/StatusRede";
 import InstallPrompt from "./components/InstallPrompt";
+import NotificationPrompt from "./components/NotificationPrompt";
 import TaskCard from "./components/TaskCard";
 import TaskForm from "./components/TaskForm";
+
+import { notificarLocal } from "./notifications";
+import { agendarSincronizacao } from "./backgroundSync";
 
 const TAREFAS_INICIAIS = [
   {
@@ -46,9 +51,13 @@ const FILTROS = [
 
 function App() {
   const [tarefas, setTarefas] = useState(() => {
-    const salvas = localStorage.getItem("moviebox-tarefas");
+    const salvas = localStorage.getItem(
+      "moviebox-tarefas"
+    );
 
-    return salvas ? JSON.parse(salvas) : TAREFAS_INICIAIS;
+    return salvas
+      ? JSON.parse(salvas)
+      : TAREFAS_INICIAIS;
   });
 
   const [filtro, setFiltro] = useState("todas");
@@ -60,6 +69,48 @@ function App() {
       JSON.stringify(tarefas)
     );
   }, [tarefas]);
+
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) {
+      return;
+    }
+
+    function aoReceberMensagem(evento) {
+      if (
+        evento.data?.tipo ===
+        "SINCRONIZADO"
+      ) {
+        setAnuncio(
+          "🔄 Sincronização em segundo plano concluída."
+        );
+      }
+    }
+
+    navigator.serviceWorker.addEventListener(
+      "message",
+      aoReceberMensagem
+    );
+
+    return () => {
+      navigator.serviceWorker.removeEventListener(
+        "message",
+        aoReceberMensagem
+      );
+    };
+  }, []);
+
+  function avisarMudancaOffline() {
+    if (!navigator.onLine) {
+      agendarSincronizacao(
+        "sincronizar-tarefas"
+      );
+
+      setAnuncio(
+        (atual) =>
+          `${atual} A sincronização ocorrerá quando a conexão voltar.`
+      );
+    }
+  }
 
   function adicionarTarefa(novaTarefa) {
     setTarefas((atual) => [
@@ -74,6 +125,8 @@ function App() {
     setAnuncio(
       `Tarefa "${novaTarefa.titulo}" adicionada.`
     );
+
+    avisarMudancaOffline();
   }
 
   function alternarConcluida(id) {
@@ -85,24 +138,38 @@ function App() {
       return;
     }
 
-    const novaSituacao = !tarefa.concluida;
+    const vaiConcluir = !tarefa.concluida;
+
+    const status = vaiConcluir
+      ? "concluída"
+      : "pendente";
 
     setTarefas((atual) =>
       atual.map((t) =>
         t.id === id
           ? {
               ...t,
-              concluida: novaSituacao,
+              concluida: !t.concluida,
             }
           : t
       )
     );
 
     setAnuncio(
-      `Tarefa "${tarefa.titulo}" marcada como ${
-        novaSituacao ? "concluída" : "pendente"
-      }.`
+      `Tarefa "${tarefa.titulo}" marcada como ${status}.`
     );
+
+    if (
+      vaiConcluir &&
+      tarefa.prioridade === "alta"
+    ) {
+      notificarLocal(
+        "Boa! Tarefa de alta prioridade concluída 🎉",
+        {
+          body: tarefa.titulo,
+        }
+      );
+    }
   }
 
   function removerTarefa(id) {
@@ -121,19 +188,23 @@ function App() {
     setAnuncio(
       `Tarefa "${tarefa.titulo}" removida.`
     );
+
+    avisarMudancaOffline();
   }
 
-  const tarefasFiltradas = tarefas.filter((tarefa) => {
-    if (filtro === "pendentes") {
-      return !tarefa.concluida;
-    }
+  const tarefasFiltradas = tarefas.filter(
+    (tarefa) => {
+      if (filtro === "pendentes") {
+        return !tarefa.concluida;
+      }
 
-    if (filtro === "concluidas") {
-      return tarefa.concluida;
-    }
+      if (filtro === "concluidas") {
+        return tarefa.concluida;
+      }
 
-    return true;
-  });
+      return true;
+    }
+  );
 
   return (
     <div className="app">
@@ -149,6 +220,8 @@ function App() {
       <StatusRede />
 
       <InstallPrompt />
+
+      <NotificationPrompt />
 
       <div
         className="sr-only"

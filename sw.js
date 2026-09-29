@@ -1,4 +1,4 @@
-const CACHE_NAME = "moviebox-cache-v1";
+const CACHE_NAME = "moviebox-cache-v2";
 
 const APP_SHELL = [
   "/",
@@ -24,8 +24,12 @@ self.addEventListener("activate", (event) => {
       .then((nomes) =>
         Promise.all(
           nomes
-            .filter((nome) => nome !== CACHE_NAME)
-            .map((nome) => caches.delete(nome))
+            .filter(
+              (nome) => nome !== CACHE_NAME
+            )
+            .map((nome) =>
+              caches.delete(nome)
+            )
         )
       )
       .then(() => self.clients.claim())
@@ -35,25 +39,74 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
-  if (request.method !== "GET") return;
+  if (request.method !== "GET") {
+    return;
+  }
 
   event.respondWith(
-    caches.match(request).then((respostaEmCache) => {
-      const buscaNaRede = fetch(request)
-        .then((respostaDaRede) => {
-          if (respostaDaRede && respostaDaRede.status === 200) {
-            const copia = respostaDaRede.clone();
+    caches
+      .match(request)
+      .then((respostaEmCache) => {
+        const buscaNaRede = fetch(request)
+          .then((respostaDaRede) => {
+            if (
+              respostaDaRede &&
+              respostaDaRede.status === 200
+            ) {
+              const copia =
+                respostaDaRede.clone();
 
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, copia);
-            });
-          }
+              caches
+                .open(CACHE_NAME)
+                .then((cache) => {
+                  cache.put(request, copia);
+                });
+            }
 
-          return respostaDaRede;
-        })
-        .catch(() => respostaEmCache);
+            return respostaDaRede;
+          })
+          .catch(() => respostaEmCache);
 
-      return respostaEmCache || buscaNaRede;
+        return respostaEmCache || buscaNaRede;
+      })
+  );
+});
+
+self.addEventListener("sync", (event) => {
+  if (
+    event.tag !== "sincronizar-tarefas"
+  ) {
+    return;
+  }
+
+  event.waitUntil(
+    self.clients.matchAll().then((clientes) => {
+      clientes.forEach((cliente) => {
+        cliente.postMessage({
+          tipo: "SINCRONIZADO",
+          em: new Date().toISOString(),
+        });
+      });
     })
+  );
+});
+
+self.addEventListener("push", (event) => {
+  const dados = event.data
+    ? event.data.json()
+    : {
+        titulo: "MovieBox",
+        corpo: "Você tem uma novidade.",
+      };
+
+  event.waitUntil(
+    self.registration.showNotification(
+      dados.titulo,
+      {
+        body: dados.corpo,
+        icon: "/icons/icon-192.png",
+        badge: "/icons/icon-192.png",
+      }
+    )
   );
 });
