@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: Arial, sans-serif;
   background: #f4f4f5;
@@ -22,6 +26,35 @@ button {
 
 .app {
   min-height: 100vh;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 10px;
+  background: white;
+  color: #18181b;
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  left: 10px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .header {
@@ -44,7 +77,7 @@ button {
 
 .header p {
   margin-top: 5px;
-  color: #a1a1aa;
+  color: #d4d4d8;
   font-size: 14px;
 }
 
@@ -56,7 +89,7 @@ button {
 
 .relogio {
   background: #27272a;
-  color: #f87171;
+  color: #fca5a5;
   padding: 8px 12px;
   border-radius: 8px;
   font-family: monospace;
@@ -64,10 +97,24 @@ button {
 
 .botao-relogio {
   background: transparent;
-  border: 1px solid #52525b;
+  border: 1px solid #a1a1aa;
   color: white;
   padding: 8px 12px;
   border-radius: 8px;
+}
+
+.botao-relogio:hover {
+  border-color: #f87171;
+}
+
+.botao-relogio:focus,
+.botao-adicionar:focus,
+.filtro:focus,
+.card-acoes button:focus,
+input:focus,
+select:focus {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
 }
 
 .container {
@@ -86,7 +133,7 @@ button {
 }
 
 .intro p {
-  color: #71717a;
+  color: #52525b;
 }
 
 .formulario {
@@ -98,6 +145,7 @@ button {
   gap: 15px;
   align-items: end;
   margin-bottom: 30px;
+  border: 1px solid #e4e4e7;
 }
 
 .campo {
@@ -114,22 +162,29 @@ button {
 .campo label {
   font-size: 13px;
   font-weight: bold;
+  color: #52525b;
 }
 
 .campo input,
 .campo select {
-  border: 1px solid #d4d4d8;
+  border: 1px solid #a1a1aa;
   border-radius: 8px;
   padding: 10px 12px;
+  background: white;
+  color: #18181b;
 }
 
 .botao-adicionar {
   border: none;
-  background: #dc2626;
+  background: #b91c1c;
   color: white;
   font-weight: bold;
   padding: 10px 18px;
   border-radius: 8px;
+}
+
+.botao-adicionar:hover {
+  background: #991b1b;
 }
 
 .lista-header {
@@ -140,6 +195,10 @@ button {
   margin-bottom: 18px;
 }
 
+.lista-header h2 {
+  font-size: 20px;
+}
+
 .filtros {
   display: flex;
   gap: 7px;
@@ -148,12 +207,17 @@ button {
 .filtro {
   border: none;
   background: white;
+  color: #52525b;
   padding: 8px 12px;
   border-radius: 8px;
 }
 
+.filtro:hover {
+  background: #e4e4e7;
+}
+
 .filtro.ativo {
-  background: #dc2626;
+  background: #b91c1c;
   color: white;
 }
 
@@ -168,10 +232,16 @@ button {
   border-radius: 14px;
   padding: 20px;
   border: 1px solid #e4e4e7;
+  transition: 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
 }
 
 .card.concluida {
-  opacity: 0.55;
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 .card-topo {
@@ -184,7 +254,7 @@ button {
 .categoria {
   font-size: 12px;
   text-transform: uppercase;
-  color: #71717a;
+  color: #64748b;
   font-weight: bold;
 }
 
@@ -213,6 +283,12 @@ button {
 .card h3 {
   font-size: 18px;
   margin-bottom: 20px;
+  color: #18181b;
+}
+
+.card.concluida h3 {
+  color: #64748b;
+  text-decoration: line-through;
 }
 
 .card-acoes {
@@ -225,14 +301,27 @@ button {
   display: flex;
   align-items: center;
   gap: 7px;
+  color: #52525b;
   font-size: 14px;
+  cursor: pointer;
+}
+
+.card-acoes input {
+  width: 16px;
+  height: 16px;
+  accent-color: #047857;
 }
 
 .card-acoes button {
   border: none;
   background: none;
   color: #dc2626;
+  font-size: 13px;
   font-weight: bold;
+}
+
+.card-acoes button:hover {
+  color: #991b1b;
 }
 
 .vazio {
@@ -240,14 +329,26 @@ button {
   padding: 40px;
   text-align: center;
   border-radius: 14px;
-  color: #71717a;
+  color: #52525b;
   grid-column: 1 / -1;
+}
+
+.footer {
+  text-align: center;
+  font-size: 13px;
+  color: #52525b;
+  padding: 25px;
 }
 
 @media (max-width: 700px) {
   .header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .header-acoes {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .tarefas {
@@ -262,6 +363,10 @@ button {
   .formulario {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .campo.titulo {
+    width: 100%;
   }
 
   .botao-adicionar {

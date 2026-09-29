@@ -11,14 +11,18 @@ Sistema desenvolvido em React + Vite para organização de tarefas relacionadas 
 - Remover tarefas
 - Filtrar tarefas
 - Relógio em tempo real
-- Salvar tarefas no localStorage
+- Salvar tarefas no navegador
+- Recursos de acessibilidade
+
+## Tecnologias
+
+- React
+- Vite
+- JavaScript
+- CSS
 
 ## Como executar
 
-Instale as dependências:
-
 npm install
-
-Execute o projeto:
 
 npm run dev
